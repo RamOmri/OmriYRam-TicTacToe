@@ -5,6 +5,7 @@ import { COLORS } from "../styles";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamsList } from "../Router";
 import { Board, Button } from "../components";
+import { hasPlayerWon } from "../utils";
 
 const Game: FC = () => {
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
@@ -17,7 +18,12 @@ const Game: FC = () => {
       <Text fontType="BodyHeader" style={styles.title}>
         Game
       </Text>
-      <Board gridSize={gridSize} />
+      <Board
+        gridSize={gridSize}
+        onGameStateChange={(gameState, Player) =>
+          console.log(hasPlayerWon(gameState, Player))
+        }
+      />
       <Button
         layoutStyle={styles.button}
         label={"New game"}

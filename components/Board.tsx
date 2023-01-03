@@ -1,14 +1,19 @@
 import React, { FC, useCallback, useState } from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { COLORS } from "../styles";
+import { View, StyleSheet } from "react-native";
 import Cell from "./Cell";
-import { createInitialGameState } from "../utils";
+import { createInitialGameState, GameStateType } from "../utils";
 
 type Props = {
   gridSize: 3 | 4 | 5;
+  onGameStateChange?: (gameState: GameStateType, Player: "X" | "O") => void;
+  isGameOver?: boolean;
 };
 
-const Board: FC<Props> = ({ gridSize }) => {
+const Board: FC<Props> = ({
+  gridSize,
+  onGameStateChange,
+  isGameOver = false,
+}) => {
   const [gameState, setGameState] = useState(createInitialGameState(gridSize));
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
 
@@ -16,6 +21,7 @@ const Board: FC<Props> = ({ gridSize }) => {
     gameState[row][column] = currentPlayer;
     setGameState(gameState);
     setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+    onGameStateChange?.(gameState, currentPlayer);
   };
 
   const renderBoard = useCallback(() => {
@@ -25,7 +31,7 @@ const Board: FC<Props> = ({ gridSize }) => {
         row.push(
           <Cell
             key={`${i}${j}`}
-            onPress={() => updateGameState(i, j)}
+            onPress={() => (isGameOver ? undefined : updateGameState(i, j))}
             identity={gameState[i][j]}
           />
         );
