@@ -1,0 +1,49 @@
+import React, { FC, useState } from "react";
+import { View, StyleSheet } from "react-native";
+import { Text } from "../../../styles";
+import { COLORS } from "../styles";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { RootStackParamsList } from "../Router";
+import { Board, Button } from "../components";
+
+const Game: FC = () => {
+  const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
+  const route = useRoute<RouteProp<RootStackParamsList, "Game">>();
+  const navigation = useNavigation();
+  const { isPlayerFirst, gridSize } = route.params;
+
+  return (
+    <View style={styles.container}>
+      <Text fontType="BodyHeader" style={styles.title}>
+        Game
+      </Text>
+      <Board gridSize={gridSize} />
+      <Button
+        layoutStyle={styles.button}
+        label={"New game"}
+        onPress={() => navigation.goBack()}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: COLORS.background,
+    padding: 20,
+    paddingTop: 60,
+  },
+  text: {
+    marginBottom: 10,
+  },
+  title: {
+    marginBottom: 20,
+  },
+  button: {
+    marginTop: 20,
+  },
+});
+
+export default Game;
