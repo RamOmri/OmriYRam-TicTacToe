@@ -9,6 +9,7 @@ import { hasPlayerWon } from "../utils";
 
 const Game: FC = () => {
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
+  const [winner, setWinner] = useState<"X" | "O" | undefined>(undefined);
   const route = useRoute<RouteProp<RootStackParamsList, "Game">>();
   const navigation = useNavigation();
   const { isPlayerFirst, gridSize } = route.params;
@@ -21,8 +22,9 @@ const Game: FC = () => {
       <Board
         gridSize={gridSize}
         onGameStateChange={(gameState, Player) =>
-          console.log(hasPlayerWon(gameState, Player))
+          hasPlayerWon(gameState, Player) ? setWinner(Player) : undefined
         }
+        isGameOver={Boolean(winner)}
       />
       <Button
         layoutStyle={styles.button}

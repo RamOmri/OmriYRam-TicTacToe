@@ -15,7 +15,7 @@ export function hasPlayerWon(gameState: GameStateType, player: "X" | "O") {
     for (let col = 0; col < gameState.length; col++) {
         let isColumnFull = true
         for (let row = 0; row < gameState.length; row++) {
-          if (gameState[row][col] !== 'X') {
+          if (gameState[row][col] !== player) {
             isColumnFull = false;
             break;
           }
