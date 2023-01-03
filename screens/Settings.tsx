@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text } from "../../../styles";
+import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
 import { Menu, Button } from "../components";
 import {

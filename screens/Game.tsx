@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text } from "../../../styles";
+import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamsList } from "../Router";

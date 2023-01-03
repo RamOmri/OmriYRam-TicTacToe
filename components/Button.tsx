@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { View, TouchableOpacity, StyleSheet, FlexStyle } from "react-native";
-import { Text } from "../../../styles";
+import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
 
 type Props = {

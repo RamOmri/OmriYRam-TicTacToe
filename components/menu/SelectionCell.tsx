@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import { StyleSheet, Pressable } from "react-native";
-import { Text } from "../../../../styles";
+import { Text } from "../../../../src/styles";
 import { COLORS } from "../../styles";
 
 type SelectionCellProps = {
