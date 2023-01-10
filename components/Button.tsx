@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { View, TouchableOpacity, StyleSheet, FlexStyle } from "react-native";
+import { TouchableOpacity, StyleSheet, FlexStyle } from "react-native";
 import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
 
@@ -20,7 +20,7 @@ const Button: FC<Props> = ({ onPress, label, layoutStyle }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: COLORS.purple,
+    backgroundColor: COLORS.darkPurple,
     borderRadius: 10,
   },
 });

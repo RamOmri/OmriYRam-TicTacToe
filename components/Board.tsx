@@ -1,28 +1,67 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useContext, useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import Cell from "./Cell";
-import { createInitialGameState, GameStateType } from "../utils";
+import {
+  createInitialGameState,
+  GameStateType,
+  switchPlayers,
+  TreeNode,
+} from "../utils";
+import { cloneState } from "../minimaxUtils";
+import { MinimaxTreeGraphContext } from "../MinimaxContextProvider";
 
 type Props = {
   gridSize: 3 | 4 | 5;
   onGameStateChange?: (gameState: GameStateType, Player: "X" | "O") => void;
   isGameOver?: boolean;
+  isPlayerFirst: boolean;
 };
 
 const Board: FC<Props> = ({
   gridSize,
   onGameStateChange,
   isGameOver = false,
+  isPlayerFirst,
 }) => {
   const [gameState, setGameState] = useState(createInitialGameState(gridSize));
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
+  const [isPlayerTurn, setIsPlayerTurn] = useState(isPlayerFirst); // False for the agent true for the human
+  const [, makeAgentMove, resetTree] = useContext(MinimaxTreeGraphContext);
 
-  const updateGameState = (row: number, column: number) => {
-    gameState[row][column] = currentPlayer;
-    setGameState(gameState);
-    setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-    onGameStateChange?.(gameState, currentPlayer);
+  useEffect(() => {
+    return () => {
+      // The current node of the tree should be reset when the component unmounts (i.e the game is over)
+      resetTree?.();
+    };
+  }, []);
+
+  const prepareNextTurn = (newGameState: GameStateType) => {
+    setGameState(newGameState);
+    onGameStateChange?.(newGameState, currentPlayer);
+    setCurrentPlayer(switchPlayers(currentPlayer));
+    setIsPlayerTurn(!isPlayerTurn);
   };
+
+  const playerUpdateGameState = (row: number, column: number) => {
+    const newGameState = cloneState(gameState);
+    newGameState[row][column] = currentPlayer;
+    prepareNextTurn(newGameState);
+  };
+
+  const agentUpdateGameState = () => {
+    const newGameState = makeAgentMove?.(
+      gameState,
+      isPlayerFirst,
+      currentPlayer
+    );
+    if (!newGameState) throw new Error("minimax agent not initialized");
+    prepareNextTurn(newGameState);
+  };
+
+  useEffect(() => {
+    // Determines whether it is the agents turn and if so makes the agent's move
+    if (!isPlayerTurn && !isGameOver) agentUpdateGameState();
+  }, [isPlayerTurn, isGameOver]);
 
   const renderBoard = useCallback(() => {
     const emptyBoard = [...Array(gridSize)].map((e) => Array(gridSize));
@@ -31,7 +70,9 @@ const Board: FC<Props> = ({
         row.push(
           <Cell
             key={`${i}${j}`}
-            onPress={() => (isGameOver ? undefined : updateGameState(i, j))}
+            onPress={() => {
+              if (!isGameOver && isPlayerTurn) playerUpdateGameState(i, j);
+            }}
             identity={gameState[i][j]}
           />
         );
@@ -42,7 +83,7 @@ const Board: FC<Props> = ({
       );
     });
     return board;
-  }, [gridSize, gameState, currentPlayer]);
+  }, [gridSize, gameState]);
 
   return <View style={styles.container}>{renderBoard()}</View>;
 };

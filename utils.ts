@@ -1,8 +1,21 @@
 export type GameStateType = ("" | "X" | "O")[][];
 
+export type TreeNode = {
+    state: GameStateType;
+    score: number | null;
+    children: TreeNode[];
+    isRoot?: boolean;
+  }
+
+// Creates an empty board
 export const createInitialGameState = (gridSize: number) => {
     const gameState = [...Array(gridSize)].map((e) => Array(gridSize));
-    return gameState.map(row => row.fill("", 0, gridSize));;
+    return gameState.map(row => row.fill("", 0, gridSize));
+}
+
+// Return the opposite player of the one given
+export const switchPlayers = (player: "X" | "O") => {
+    return player === "X" ? "O" : "X";
 }
 
 export function hasPlayerWon(gameState: GameStateType, player: "X" | "O") {
@@ -38,5 +51,10 @@ export function hasPlayerWon(gameState: GameStateType, player: "X" | "O") {
         return true;
     }
     return false
+}
+
+// Checks whether all cells are filled
+export function isTie(gameState: GameStateType){
+    return gameState.every(row => row.every(cell => cell === "X" || cell === "O"))
 }
 

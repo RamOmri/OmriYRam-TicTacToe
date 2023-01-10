@@ -1,34 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, StyleSheet } from "react-native";
 import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
 import { Menu, Button } from "../components";
-import {
-  NavigationContainerProps,
-  NavigationProp,
-  useNavigation,
-} from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamsList } from "../Router";
+import { MinimaxTreeGraphContext } from "../MinimaxContextProvider";
+import { ActivityIndicator } from "react-native-web";
 
 export default function Settings() {
   type gridSizeOptions = 3 | 4 | 5;
   const [gridSize, setGridSize] = useState<gridSizeOptions>(3);
   const [isPlayerFirst, setIsPlayerFirst] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamsList>>();
+  const [currentNode] = useContext(MinimaxTreeGraphContext);
+  const [hasPressedStartGame, setHasPressedStartGame] = useState(false);
 
   const onSelectionFirstOrSecond = (index: number) => {
-    if (index === 0) {
-      setIsPlayerFirst(true);
-    } else if (index === 1) {
-      setIsPlayerFirst(false);
-    }
+    setIsPlayerFirst(index === 0);
   };
 
-  const onSelectionGridSize = (index: number) => {
-    if (index === 0) setGridSize(3);
-    else if (index === 1) setGridSize(4);
-    else if (index === 2) setGridSize(5);
+  const onSelectionGridSize = (index: 0 | 1 | 2) => {
+    const size = (3 + index) as gridSizeOptions;
+    setGridSize(size);
   };
+
+  useEffect(() => {
+    if (Boolean(currentNode) && hasPressedStartGame) {
+      navigation.navigate("Game", {
+        gridSize,
+        isPlayerFirst,
+      });
+      setHasPressedStartGame(false);
+    }
+  }, [currentNode, hasPressedStartGame]);
+
+  if (!currentNode && hasPressedStartGame)
+    return (
+      <View style={[styles.container, styles.activityContainer]}>
+        <ActivityIndicator size={50} color="purple" />
+        <Text fontType="BodyHeader" style={styles.activityText}>
+          Fetching the minimax tree graph! This might take a few seconds....
+        </Text>
+      </View>
+    );
 
   return (
     <View style={styles.container}>
@@ -46,13 +61,10 @@ export default function Settings() {
         Select the grid size of the board
       </Text>
       <Menu
-        onSelectionChanged={onSelectionGridSize}
+        onSelectionChanged={(index) => onSelectionGridSize(index as 0 | 1 | 2)}
         options={["3X3", "4X4", "5X5"]}
       />
-      <Button
-        label="Start Game"
-        onPress={() => navigation.navigate("Game", { gridSize, isPlayerFirst })}
-      />
+      <Button label="Start Game" onPress={() => setHasPressedStartGame(true)} />
     </View>
   );
 }
@@ -70,5 +82,12 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 20,
+  },
+  activityText: {
+    textAlign: "center",
+    marginTop: 16,
+  },
+  activityContainer: {
+    justifyContent: "center",
   },
 });

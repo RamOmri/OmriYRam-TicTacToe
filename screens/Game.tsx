@@ -2,35 +2,45 @@ import React, { FC, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Text } from "../../../src/styles";
 import { COLORS } from "../styles";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import {
+  RouteProp,
+  useNavigation,
+  useRoute,
+  NavigationProp,
+} from "@react-navigation/native";
 import { RootStackParamsList } from "../Router";
 import { Board, Button } from "../components";
-import { hasPlayerWon } from "../utils";
+import { hasPlayerWon, GameStateType, isTie } from "../utils";
+import { StackActions } from "@react-navigation/native";
 
 const Game: FC = () => {
-  const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
   const [winner, setWinner] = useState<"X" | "O" | undefined>(undefined);
+  const [isGameTied, setIsGameTied] = useState(false);
+  const navigation = useNavigation<NavigationProp<RootStackParamsList>>();
   const route = useRoute<RouteProp<RootStackParamsList, "Game">>();
-  const navigation = useNavigation();
   const { isPlayerFirst, gridSize } = route.params;
+
+  const onGameStateChange = (gameState: GameStateType, player: "X" | "O") => {
+    if (hasPlayerWon(gameState, player)) setWinner(player);
+    else if (isTie(gameState)) setIsGameTied(true);
+  };
 
   return (
     <View style={styles.container}>
-      <Text fontType="BodyHeader" style={styles.title}>
-        Game
-      </Text>
       <Board
         gridSize={gridSize}
-        onGameStateChange={(gameState, Player) =>
-          hasPlayerWon(gameState, Player) ? setWinner(Player) : undefined
-        }
-        isGameOver={Boolean(winner)}
+        onGameStateChange={onGameStateChange}
+        isGameOver={Boolean(winner) || isGameTied}
+        isPlayerFirst={isPlayerFirst}
       />
       <Button
         layoutStyle={styles.button}
         label={"New game"}
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.dispatch(StackActions.popToTop())}
       />
+      {Boolean(winner) && <Text fontType="Title">Winner!!!</Text>}
+      <Text fontType="Title">{winner}</Text>
+      {isGameTied && <Text fontType="Title">Tie</Text>}
     </View>
   );
 };
@@ -51,6 +61,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
+    marginBottom: 20,
   },
 });
 
