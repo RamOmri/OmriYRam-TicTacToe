@@ -1,11 +1,11 @@
 import React, { FC, useCallback, useContext, useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Cell from "./Cell";
 import {
   createInitialGameState,
+  fetchMCTSMove,
   GameStateType,
   switchPlayers,
-  TreeNode,
 } from "../utils";
 import { cloneState } from "../minimaxUtils";
 import { MinimaxTreeGraphContext } from "../MinimaxContextProvider";
@@ -26,7 +26,8 @@ const Board: FC<Props> = ({
   const [gameState, setGameState] = useState(createInitialGameState(gridSize));
   const [currentPlayer, setCurrentPlayer] = useState<"X" | "O">("X");
   const [isPlayerTurn, setIsPlayerTurn] = useState(isPlayerFirst); // False for the agent true for the human
-  const [, makeAgentMove, resetTree] = useContext(MinimaxTreeGraphContext);
+  const [, makeMinimaxMove, resetTree] = useContext(MinimaxTreeGraphContext);
+  const isMinimMax = gridSize === 3;
 
   useEffect(() => {
     return () => {
@@ -48,14 +49,23 @@ const Board: FC<Props> = ({
     prepareNextTurn(newGameState);
   };
 
-  const agentUpdateGameState = () => {
-    const newGameState = makeAgentMove?.(
-      gameState,
-      isPlayerFirst,
-      currentPlayer
-    );
-    if (!newGameState) throw new Error("minimax agent not initialized");
-    prepareNextTurn(newGameState);
+  const agentUpdateGameState = async () => {
+    let newGameState;
+    if (isMinimMax)
+      newGameState = makeMinimaxMove?.(gameState, isPlayerFirst, currentPlayer);
+    else {
+      newGameState = await fetchMCTSMove(
+        gameState,
+        gridSize === 4 ? 50000 : 10000,
+        currentPlayer
+      );
+    }
+
+    if (!newGameState)
+      throw new Error(
+        "minimax agent not initialized or could not fetch new game state"
+      );
+    else prepareNextTurn(newGameState);
   };
 
   useEffect(() => {
@@ -83,15 +93,34 @@ const Board: FC<Props> = ({
       );
     });
     return board;
-  }, [gridSize, gameState]);
+  }, [gridSize, gameState, isPlayerTurn]);
 
-  return <View style={styles.container}>{renderBoard()}</View>;
+  return (
+    <>
+      <View style={styles.container}>
+        {renderBoard()}
+        {(!isPlayerTurn || isGameOver) && (
+          <View
+            style={[StyleSheet.absoluteFill, styles.activityIndicatorContainer]}
+          >
+            {!isGameOver && <ActivityIndicator size={50} color="purple" />}
+          </View>
+        )}
+      </View>
+    </>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     aspectRatio: 1,
     width: "100%",
+    backgroundColor: "grey",
+  },
+  activityIndicatorContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    opacity: 0.7,
     backgroundColor: "grey",
   },
   row: {

@@ -58,3 +58,28 @@ export function isTie(gameState: GameStateType){
     return gameState.every(row => row.every(cell => cell === "X" || cell === "O"))
 }
 
+export async function fetchMCTSMove(GameState: GameStateType, Iterations: number, Player: "X" | "O") {
+    if(!process.env.MCTS_FETCH_URL) throw new Error("missing url to fetch mcts move");
+
+    const response = await fetch(
+        process.env.MCTS_FETCH_URL,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            GameState,
+            Iterations,
+            Player,
+          }),
+        }
+      );
+      if (!response.ok) {
+        alert("Something went wrong, please start a new game");
+      }
+      const newState = await response.json() satisfies GameStateType;
+
+      return newState;
+}
+

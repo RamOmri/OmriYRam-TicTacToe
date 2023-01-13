@@ -35,7 +35,7 @@ export default function Settings() {
     }
   }, [currentNode, hasPressedStartGame]);
 
-  if (!currentNode && hasPressedStartGame)
+  if (!currentNode && hasPressedStartGame && gridSize === 3)
     return (
       <View style={[styles.container, styles.activityContainer]}>
         <ActivityIndicator size={50} color="purple" />
