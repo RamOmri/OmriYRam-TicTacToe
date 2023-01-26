@@ -11,11 +11,11 @@ const Cell: FC<Props> = ({ identity, onPress }) => {
   switch (identity) {
     case "X":
       return (
-        <Image style={styles.container} source={require("../assets/X.jpeg")} />
+        <Image style={styles.container} source={require("../assets/X.png")} />
       );
     case "O":
       return (
-        <Image style={styles.container} source={require("../assets/O.jpeg")} />
+        <Image style={styles.container} source={require("../assets/O.png")} />
       );
     default:
       return <TouchableOpacity onPress={onPress} style={styles.container} />;
