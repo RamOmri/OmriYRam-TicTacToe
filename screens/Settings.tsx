@@ -26,7 +26,9 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if (Boolean(currentNode) && hasPressedStartGame) {
+    const isLoadingTreeGraph =
+      !currentNode && hasPressedStartGame && gridSize === 3;
+    if (hasPressedStartGame && (!isLoadingTreeGraph || gridSize != 3)) {
       navigation.navigate("Game", {
         gridSize,
         isPlayerFirst,

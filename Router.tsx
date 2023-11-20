@@ -16,7 +16,7 @@ const Stack = createStackNavigator<RootStackParamsList>();
 
 function TicTacToeRouter() {
   return (
-    <NavigationContainer>
+    <NavigationContainer independent={true}>
       <MinimaxContextProvider>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Settings" component={Settings} />
